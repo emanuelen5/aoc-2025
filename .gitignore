@@ -1,0 +1,6 @@
+/target
+Cargo.lock
+# Ignore puzzle inputs (personal data)
+**/input.txt
+# Session cookie for downloading inputs
+.session
