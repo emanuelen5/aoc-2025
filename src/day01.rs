@@ -68,7 +68,7 @@ mod tests {
 
     #[test]
     fn test_part2_example() {
-        let input = std::fs::read_to_string("day01/example2.txt").expect("Example file not found");
+        let input = std::fs::read_to_string("day01/example1.txt").expect("Example file not found");
         assert_eq!(6, part2(&input));
     }
 
