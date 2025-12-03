@@ -41,9 +41,9 @@ echo "✓ Updated src/lib.rs"
 touch "$DIR/input.txt"
 echo "✓ Created $DIR/input.txt (empty)"
 
-# Create example.txt placeholder
-touch "$DIR/example.txt"
-echo "✓ Created $DIR/example.txt"
+# Create empty example file
+touch "$DIR/example1.txt"
+echo "✓ Created $DIR/example1.txt"
 echo ""
 
 download-input() {
