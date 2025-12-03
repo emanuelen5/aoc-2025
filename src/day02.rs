@@ -1,5 +1,3 @@
-use std::fs;
-
 pub fn part1(input: &str) -> i64 {
     let mut matching_numbers = Vec::<i64>::new();
 
@@ -96,13 +94,13 @@ mod tests {
 
     #[test]
     fn test_part1_input() {
-        let input = fs::read_to_string("day02/input.txt").expect("Input file not found");
+        let input = std::fs::read_to_string("day02/input.txt").expect("Input file not found");
         println!("Part 1: {}", part1(&input));
     }
 
     #[test]
     fn test_part2_input() {
-        let input = fs::read_to_string("day02/input.txt").expect("Input file not found");
+        let input = std::fs::read_to_string("day02/input.txt").expect("Input file not found");
         println!("Part 2: {}", part2(&input));
     }
 }
