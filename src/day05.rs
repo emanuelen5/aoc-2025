@@ -29,6 +29,27 @@ fn parse_input(input: &str) -> (Vec<(i64, i64)>, Vec<i64>) {
     (ranges, ingredients)
 }
 
+fn unique_ranges(ranges: &Vec<(i64, i64)>) -> Vec<(i64, i64)> {
+    let mut sorted = ranges.clone();
+    sorted.sort_by(|a, b| a.0.cmp(&b.0));
+
+    let mut unique = Vec::new();
+    let mut current_start = sorted[0].0;
+    let mut current_end = sorted[0].1;
+
+    for (start, end) in sorted.iter().skip(1) {
+        if *start > current_end + 1 {
+            unique.push((current_start, current_end));
+            current_start = *start;
+            current_end = *end;
+        } else if *end > current_end {
+            current_end = *end;
+        }
+    }
+    unique.push((current_start, current_end));
+    unique
+}
+
 pub fn part1(input: &str) -> i32 {
     let (ranges, ingredients) = parse_input(input);
     let mut valid = 0;
@@ -44,8 +65,17 @@ pub fn part1(input: &str) -> i32 {
     valid
 }
 
-pub fn part2(input: &str) -> i32 {
-    todo!("Part 2 not yet implemented")
+pub fn part2(input: &str) -> i64 {
+    let (ranges, ingredients) = parse_input(input);
+    let ranges = unique_ranges(&ranges);
+    let mut valid: i64 = 0;
+
+    for range in &ranges {
+        let (min, max) = range;
+        valid += max - min + 1;
+    }
+
+    valid
 }
 
 #[cfg(test)]
@@ -65,14 +95,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_part2_example() {
         let input = std::fs::read_to_string("day05/example1.txt").expect("Example file not found");
-        assert_eq!(3, part2(&input));
+        assert_eq!(14, part2(&input));
     }
 
     #[test]
-    #[ignore]
     fn test_part2_input() {
         let input = std::fs::read_to_string("day05/input.txt").expect("Input file not found");
         println!("Part 2: {}", part2(&input));
