@@ -39,6 +39,61 @@ fn parse_input(input: &str) -> Vec<(char, Vec<i64>)> {
     result
 }
 
+fn parse_input2(input: &str) -> Vec<(char, Vec<i64>)> {
+    let mut numbers: Vec<Vec<i64>> = Vec::new();
+    let mut operands: Vec<char> = Vec::new();
+
+    let linecount = input.lines().count();
+
+    // Find the offset of each operand in the last line, and iterate using it
+    let op_line = input.lines().nth(linecount - 1).unwrap();
+    let mut offsets: Vec<usize> = Vec::new();
+    for (i, ch) in op_line.chars().enumerate() {
+        if ch == '+' || ch == '*' {
+            offsets.push(i);
+            operands.push(ch);
+        }
+    }
+
+    let mut result: Vec<(char, Vec<i64>)> = Vec::new();
+    for i in 0..=offsets.len() - 1 {
+        // Iterate using offset[i] to (offset[i+1] - 1)
+        let mut nums: Vec<i64> = Vec::new();
+        let start_offset = offsets[i];
+        let end_offset = if i + 1 < offsets.len() {
+            offsets[i + 1] - 1
+        } else {
+            op_line.len()
+        };
+        for col in start_offset..end_offset {
+            let mut num: i64 = 0;
+            for line in input.lines().take(linecount - 1) {
+                let ch = match line.chars().nth(col) {
+                    Some(c) => c,
+                    None => panic!("Could not find character at line {}, column {}", line, col),
+                };
+
+                // Skip blank space
+                if ch == ' ' {
+                    continue;
+                }
+
+                match ch.to_digit(10) {
+                    Some(n) => {
+                        num *= 10;
+                        num += n as i64;
+                    }
+                    None => panic!("Could not parse input character {ch:?}"),
+                }
+            }
+            nums.push(num);
+        }
+        result.push((operands[i], nums));
+    }
+
+    result
+}
+
 fn calculate(op: char, numbers: &Vec<i64>) -> i64 {
     match op {
         '+' => numbers.iter().sum(),
@@ -58,8 +113,15 @@ pub fn part1(input: &str) -> i64 {
     result
 }
 
-pub fn part2(input: &str) -> i32 {
-    todo!("Part 2 not yet implemented")
+pub fn part2(input: &str) -> i64 {
+    let parsed = parse_input2(input);
+    let mut result: i64 = 0;
+
+    for (op, nums) in parsed {
+        result += calculate(op, &nums);
+    }
+
+    result
 }
 
 #[cfg(test)]
@@ -79,14 +141,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_part2_example() {
         let input = std::fs::read_to_string("day06/example1.txt").expect("Example file not found");
-        assert_eq!(3, part2(&input));
+        assert_eq!(3263827, part2(&input));
     }
 
     #[test]
-    #[ignore]
     fn test_part2_input() {
         let input = std::fs::read_to_string("day06/input.txt").expect("Input file not found");
         println!("Part 2: {}", part2(&input));
