@@ -1,6 +1,7 @@
+use std::collections::HashMap as Map;
 use std::collections::HashSet;
 
-fn parse_input(input: &str) -> (HashSet<usize>, Vec<Vec<usize>>) {
+fn parse_input(input: &str) -> (HashSet<usize>, Vec<HashSet<usize>>) {
     let beam = input
         .lines()
         .next()
@@ -8,7 +9,7 @@ fn parse_input(input: &str) -> (HashSet<usize>, Vec<Vec<usize>>) {
         .expect("Failed to parse start offset");
     let beams = HashSet::from([beam]);
     // Find the index of ^ in each subsequent line
-    let splitters: Vec<Vec<usize>> = input
+    let splitters: Vec<HashSet<usize>> = input
         .lines()
         .skip(1)
         .map(|line| {
@@ -22,10 +23,9 @@ fn parse_input(input: &str) -> (HashSet<usize>, Vec<Vec<usize>>) {
     (beams, splitters)
 }
 
-fn split_beams(beams: &HashSet<usize>, splitters: &Vec<usize>) -> (HashSet<usize>, usize) {
+fn split_beams(beams: &HashSet<usize>, splitters: &HashSet<usize>) -> (HashSet<usize>, usize) {
     let mut new_beams = HashSet::new();
     let mut splits = 0;
-    let splitters: HashSet<usize> = HashSet::from_iter(splitters.iter().cloned());
     for beam in beams {
         if splitters.contains(beam) {
             splits += 1;
@@ -39,34 +39,21 @@ fn split_beams(beams: &HashSet<usize>, splitters: &Vec<usize>) -> (HashSet<usize
     (new_beams, splits)
 }
 
-struct MemoryBeam {
-    offset: usize,
-    splits: usize,
-}
-
 fn split_beams_with_count(
-    memorybeams: &Vec<MemoryBeam>,
-    splitters: &Vec<usize>,
-) -> Vec<MemoryBeam> {
-    let mut result = Vec::new();
-    for mb in memorybeams {
-        if splitters.contains(&mb.offset) {
-            result.push(MemoryBeam {
-                offset: mb.offset - 1,
-                splits: mb.splits + 1,
-            });
-            result.push(MemoryBeam {
-                offset: mb.offset + 1,
-                splits: mb.splits + 1,
-            });
+    beams: &Map<usize, usize>,
+    splitters: &HashSet<usize>,
+) -> Map<usize, usize> {
+    let mut new_beams: Map<usize, usize> = Map::new();
+    for (beam, count) in beams {
+        if splitters.contains(beam) {
+            *new_beams.entry(beam - 1).or_insert(0) += count;
+            *new_beams.entry(beam + 1).or_insert(0) += count;
         } else {
-            result.push(MemoryBeam {
-                offset: mb.offset,
-                splits: mb.splits,
-            });
+            *new_beams.entry(*beam).or_insert(0) += count;
         }
     }
-    result
+
+    new_beams
 }
 
 pub fn part1(input: &str) -> usize {
@@ -83,21 +70,18 @@ pub fn part1(input: &str) -> usize {
 }
 
 pub fn part2(input: &str) -> usize {
-    let (beams, splitters) = parse_input(input);
-
-    let mut memorybeams: Vec<MemoryBeam> = beams
-        .into_iter()
-        .map(|b| MemoryBeam {
-            offset: b,
-            splits: 0,
-        })
-        .collect();
-
-    for splitter in splitters {
-        memorybeams = split_beams_with_count(&memorybeams, &splitter);
+    let (start_beams, splitters) = parse_input(input);
+    let mut beams: Map<usize, usize> = Map::new();
+    for beam in start_beams {
+        *beams.entry(beam).or_insert(0) += 1;
     }
 
-    memorybeams.len()
+    for splitter in splitters {
+        beams = split_beams_with_count(&beams, &splitter);
+    }
+
+    let total = beams.iter().map(|(_, count)| count).sum();
+    total
 }
 
 #[cfg(test)]
