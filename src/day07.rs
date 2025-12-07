@@ -39,6 +39,36 @@ fn split_beams(beams: &HashSet<usize>, splitters: &Vec<usize>) -> (HashSet<usize
     (new_beams, splits)
 }
 
+struct MemoryBeam {
+    offset: usize,
+    splits: usize,
+}
+
+fn split_beams_with_count(
+    memorybeams: &Vec<MemoryBeam>,
+    splitters: &Vec<usize>,
+) -> Vec<MemoryBeam> {
+    let mut result = Vec::new();
+    for mb in memorybeams {
+        if splitters.contains(&mb.offset) {
+            result.push(MemoryBeam {
+                offset: mb.offset - 1,
+                splits: mb.splits + 1,
+            });
+            result.push(MemoryBeam {
+                offset: mb.offset + 1,
+                splits: mb.splits + 1,
+            });
+        } else {
+            result.push(MemoryBeam {
+                offset: mb.offset,
+                splits: mb.splits,
+            });
+        }
+    }
+    result
+}
+
 pub fn part1(input: &str) -> usize {
     let (mut beams, splitters) = parse_input(input);
     let mut total_splits = 0;
@@ -52,8 +82,22 @@ pub fn part1(input: &str) -> usize {
     total_splits
 }
 
-pub fn part2(input: &str) -> i32 {
-    todo!("Part 2 not yet implemented")
+pub fn part2(input: &str) -> usize {
+    let (beams, splitters) = parse_input(input);
+
+    let mut memorybeams: Vec<MemoryBeam> = beams
+        .into_iter()
+        .map(|b| MemoryBeam {
+            offset: b,
+            splits: 0,
+        })
+        .collect();
+
+    for splitter in splitters {
+        memorybeams = split_beams_with_count(&memorybeams, &splitter);
+    }
+
+    memorybeams.len()
 }
 
 #[cfg(test)]
@@ -73,14 +117,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_part2_example() {
         let input = std::fs::read_to_string("day07/example1.txt").expect("Example file not found");
-        assert_eq!(3, part2(&input));
+        assert_eq!(40, part2(&input));
     }
 
     #[test]
-    #[ignore]
     fn test_part2_input() {
         let input = std::fs::read_to_string("day07/input.txt").expect("Input file not found");
         println!("Part 2: {}", part2(&input));
