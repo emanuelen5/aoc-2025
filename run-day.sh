@@ -10,7 +10,7 @@ fi
 
 lib_name="$(printf "day%02d" "$DAY")"
 
-available_days=$(echo day* | sed 's/day//g' | xargs printf '%d ' | column)
+available_days=$(echo day* | sed 's/day0//g' | sed 's/day//g' | xargs printf '%d ' | column)
 
 if [ ! -f "src/$lib_name.rs" ]; then
   echo "The library ./src/$lib_name.rs does not exist." >&2
