@@ -76,11 +76,49 @@ fn solve_subproblem(config: Config) -> i32 {
     for (i, &light_on) in config.lights_on.iter().enumerate() {
         let light_sum = ast::Int::new_const(format!("light_sum_{}", i));
         optimizer.assert(&light_sum.eq(&ast::Int::add(&light_togglers[i])));
-        optimizer.assert(
-            &light_sum
-                .modulo(2)
-                .eq(if light_on { 1 } else { 0 }),
-        );
+        optimizer.assert(&light_sum.modulo(2).eq(if light_on { 1 } else { 0 }));
+    }
+
+    optimizer.minimize(&ast::Int::add(&buttons_pressed));
+
+    if optimizer.check(&[]) != z3::SatResult::Sat {
+        panic!("No solution found");
+    }
+
+    let model = optimizer.get_model().unwrap();
+    let total_presses: i64 = buttons_pressed
+        .iter()
+        .map(|button| model.eval(button, true).unwrap().as_i64().unwrap())
+        .sum();
+
+    total_presses as i32
+}
+
+fn solve_subproblem2(config: Config) -> i32 {
+    let optimizer = Optimize::new();
+    let mut joltage_incrementers: Vec<Vec<&ast::Int>> = vec![Vec::new(); config.joltages.len()];
+
+    let mut buttons_pressed: Vec<ast::Int> = Vec::new();
+    for i in 0..config.toggles_indices.len() {
+        let button_press_count = ast::Int::new_const(format!("button_{}", i));
+        optimizer.assert(&button_press_count.ge(0));
+        buttons_pressed.push(button_press_count);
+    }
+
+    // Map which buttons toggle which lights
+    for (button_press_count, button_indices) in
+        buttons_pressed.iter().zip(config.toggles_indices.iter())
+    {
+        for &joltage_index in button_indices {
+            joltage_incrementers[joltage_index].push(&button_press_count);
+        }
+    }
+
+    // For each joltage, check the sum
+    for (i, &joltage) in config.joltages.iter().enumerate() {
+        let joltage_sum = ast::Int::new_const(format!("joltage_sum_{}", i));
+        optimizer.assert(&joltage_sum.eq(&ast::Int::add(&joltage_incrementers[i])));
+        optimizer.assert(&joltage_sum.eq(joltage as i64));
     }
 
     optimizer.minimize(&ast::Int::add(&buttons_pressed));
@@ -108,7 +146,12 @@ pub fn part1(input: &str) -> i32 {
 }
 
 pub fn part2(input: &str) -> i32 {
-    todo!("Part 2 not yet implemented")
+    let configs = parse_input(input);
+    let mut total_presses = 0;
+    for config in configs {
+        total_presses += solve_subproblem2(config);
+    }
+    total_presses
 }
 
 #[cfg(test)]
@@ -147,14 +190,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_part2_example() {
         let input = std::fs::read_to_string("day10/example1.txt").expect("Example file not found");
-        assert_eq!(3, part2(&input));
+        assert_eq!(33, part2(&input));
     }
 
     #[test]
-    #[ignore]
     fn test_part2_input() {
         let input = std::fs::read_to_string("day10/input.txt").expect("Input file not found");
         println!("Part 2: {}", part2(&input));
