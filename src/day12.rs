@@ -1,10 +1,8 @@
 struct Input {
-    present_sizes: Vec<i32>,
     grids: Vec<((i32, i32), Vec<i32>)>,
 }
 
 fn parse_input(input: &str) -> Input {
-    let mut present_sizes = Vec::new();
     let mut grids = Vec::new();
     let mut lines = input.lines().peekable();
 
@@ -17,8 +15,6 @@ fn parse_input(input: &str) -> Input {
 
         if line.trim().is_empty() {
             lines.next();
-            present_sizes.push(present_size);
-            present_size = 0;
             continue;
         }
 
@@ -55,10 +51,7 @@ fn parse_input(input: &str) -> Input {
         grids.push(((grid_size[0], grid_size[1]), present_counts));
     }
 
-    Input {
-        present_sizes,
-        grids,
-    }
+    Input { grids }
 }
 
 pub fn part1(input: &str) -> i32 {
