@@ -26,7 +26,7 @@ fn path_count(graph: &Graph, start: &str) -> usize {
     };
 
     if outputs.len() == 1 && outputs[0] == "out" {
-        return 1
+        return 1;
     }
 
     let mut total = 0;
@@ -37,14 +37,66 @@ fn path_count(graph: &Graph, start: &str) -> usize {
     total
 }
 
+struct Cache {
+    paths: HashMap<(String, bool, bool), usize>,
+}
+
+fn path_count_through(
+    graph: &Graph,
+    cache: &mut Cache,
+    path: String,
+    start: &str,
+    through_dac: bool,
+    through_fft: bool,
+) -> usize {
+    let cache_key = (start.to_string(), through_dac, through_fft);
+    if let Some(&count) = cache.paths.get(&cache_key) {
+        println!("Cache hit for node {}: {}", start, count);
+        return count;
+    }
+
+    let outputs = match graph.edges.get(start) {
+        Some(v) => v,
+        None => panic!("No edges for node {}", start),
+    };
+
+    if outputs.len() == 1 && outputs[0] == "out" {
+        if through_dac && through_fft {
+            println!("Reached OUT: {}, Count: 1", path);
+            cache.paths.insert(cache_key, 1);
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    let mut total = 0;
+    for &node in outputs {
+        let path = format!("{path}/{node}");
+        let through_dac = through_dac || node == "dac";
+        let through_fft = through_fft || node == "fft";
+        total += path_count_through(graph, cache, path, node, through_dac, through_fft);
+    }
+
+    println!("Path: {}, Count: {}", path, total);
+    cache.paths.insert(cache_key, total);
+
+    total
+}
+
 pub fn part1(input: &str) -> usize {
     let graph = parse_input(input);
     let count = path_count(&graph, "you");
     count
 }
 
-pub fn part2(_input: &str) -> usize {
-    todo!("Part 2 not yet implemented")
+pub fn part2(input: &str) -> usize {
+    let graph = parse_input(input);
+    let mut cache = Cache {
+        paths: HashMap::new(),
+    };
+    let count = path_count_through(&graph, &mut cache, "/svr".to_string(), "svr", false, false);
+    count
 }
 
 #[cfg(test)]
@@ -64,14 +116,12 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_part2_example() {
-        let input = std::fs::read_to_string("day11/example1.txt").expect("Example file not found");
-        assert_eq!(3, part2(&input));
+        let input = std::fs::read_to_string("day11/example2.txt").expect("Example file not found");
+        assert_eq!(2, part2(&input));
     }
 
     #[test]
-    #[ignore]
     fn test_part2_input() {
         let input = std::fs::read_to_string("day11/input.txt").expect("Input file not found");
         println!("Part 2: {}", part2(&input));
