@@ -84,25 +84,25 @@ mod tests {
 
     #[test]
     fn test_part1_example() {
-        let input = std::fs::read_to_string("day05/example1.txt").expect("Example file not found");
+        let input = std::fs::read_to_string("inputs/day05/example1.txt").expect("Example file not found");
         assert_eq!(3, part1(&input));
     }
 
     #[test]
     fn test_part1_input() {
-        let input = std::fs::read_to_string("day05/input.txt").expect("Input file not found");
+        let input = std::fs::read_to_string("inputs/day05/input.txt").expect("Input file not found");
         println!("Part 1: {}", part1(&input));
     }
 
     #[test]
     fn test_part2_example() {
-        let input = std::fs::read_to_string("day05/example1.txt").expect("Example file not found");
+        let input = std::fs::read_to_string("inputs/day05/example1.txt").expect("Example file not found");
         assert_eq!(14, part2(&input));
     }
 
     #[test]
     fn test_part2_input() {
-        let input = std::fs::read_to_string("day05/input.txt").expect("Input file not found");
+        let input = std::fs::read_to_string("inputs/day05/input.txt").expect("Input file not found");
         println!("Part 2: {}", part2(&input));
     }
 }

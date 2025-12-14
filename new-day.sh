@@ -13,7 +13,8 @@ if [ -z "$1" ]; then
 fi
 
 DAY=$(printf "%02d" "$1")
-DIR="day$DAY"
+dayname="day$DAY"
+DIR="inputs/$dayname"
 
 if [ -d "$DIR" ]; then
     echo "Directory $DIR already exists!"
@@ -27,14 +28,14 @@ mkdir -p "$DIR"
 echo "✓ Created $DIR/"
 
 # Copy template to the day directory
-cp template.rs "src/$DIR.rs"
+cp template.rs "src/$dayname.rs"
 
 # Replace placeholder in the template
-sed -i "s/dayXX/day$DAY/g" "src/$DIR.rs"
-echo "✓ Created src/$DIR.rs"
+sed -i "s/dayXX/$dayname/g" "src/$dayname.rs"
+echo "✓ Created src/$dayname.rs"
 
 # Add module declaration to lib.rs
-sed -i "s|// pub mod day$DAY;|pub mod day$DAY;|" src/lib.rs
+sed -i "s|// pub mod $dayname;|pub mod $dayname;|" src/lib.rs
 echo "✓ Updated src/lib.rs"
 
 # Create input.txt placeholder
@@ -67,5 +68,5 @@ else
 fi
 
 echo ""
-echo "Ready to start! Edit src/$DIR.rs and run:"
+echo "Ready to start! Edit src/$dayname.rs and run:"
 echo "  ./run_day.sh $1"
