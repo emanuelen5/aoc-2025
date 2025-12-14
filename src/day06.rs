@@ -40,7 +40,6 @@ fn parse_input(input: &str) -> Vec<(char, Vec<i64>)> {
 }
 
 fn parse_input2(input: &str) -> Vec<(char, Vec<i64>)> {
-    let mut numbers: Vec<Vec<i64>> = Vec::new();
     let mut operands: Vec<char> = Vec::new();
 
     let linecount = input.lines().count();

@@ -66,7 +66,7 @@ pub fn part1(input: &str) -> i32 {
 }
 
 pub fn part2(input: &str) -> i64 {
-    let (ranges, ingredients) = parse_input(input);
+    let (ranges, _ingredients) = parse_input(input);
     let ranges = unique_ranges(&ranges);
     let mut valid: i64 = 0;
 

@@ -1,8 +1,8 @@
-pub fn part1(input: &str) -> i32 {
+pub fn part1(_input: &str) -> i32 {
     todo!("Part 1 not yet implemented")
 }
 
-pub fn part2(input: &str) -> i32 {
+pub fn part2(_input: &str) -> i32 {
     todo!("Part 2 not yet implemented")
 }
 

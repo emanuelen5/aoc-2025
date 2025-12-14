@@ -103,30 +103,6 @@ fn has_white_inside(p1: Point, p2: Point, points: &[Point]) -> bool {
     false
 }
 
-fn is_on_line(p: Point, p1: Point, p2: Point) -> bool {
-    // Check if point p is on the line segment between p1 and p2
-    let min_x = p1.x.min(p2.x);
-    let max_x = p1.x.max(p2.x);
-    let min_y = p1.y.min(p2.y);
-    let max_y = p1.y.max(p2.y);
-
-    if p.x < min_x || p.x > max_x || p.y < min_y || p.y > max_y {
-        return false;
-    }
-
-    // Horizontal line
-    if p1.y == p2.y && p.y == p1.y {
-        return true;
-    }
-
-    // Vertical line
-    if p1.x == p2.x && p.x == p1.x {
-        return true;
-    }
-
-    false
-}
-
 pub fn part2(input: &str) -> i64 {
     let points = parse_input(input);
     let mut largest_area = 0;
